@@ -1,5 +1,4 @@
 import pandas as pd
-
 data = {
     "Name" :["Aryan","Anku","Mohit","Isha"],
     "Age":[18,20,25,23],
@@ -12,4 +11,6 @@ df = pd.DataFrame(data)
 # print(df.iloc[1])
 df2 = pd.DataFrame(data)
 df2 = df2.iloc[:,:3]
-print(df2)
+# print(df2)
+# print(df.describe())
+# print(df.isnull().sum())
