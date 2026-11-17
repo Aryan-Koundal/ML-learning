@@ -8,50 +8,62 @@ from sklearn.metrics import accuracy_score
 import mysql.connector
 import requests
 
-# api = requests.get("https://science.nasa.gov/wp-json/wp/v2/apod-basic/?api_key=DEMO_KEY")
-# print(api)
-# a = pd.DataFrame(api.json())
-# print(a)
-# conn = mysql.connector.connect(host="localhost",user="root",password="@#aryan_3039",database="student_management")
-# x = pd.read_sql_query("SELECT * FROM students",conn)
-# print(x)
+api = requests.get("https://science.nasa.gov/wp-json/wp/v2/apod-basic/?api_key=DEMO_KEY")
+print(api)
+a = pd.DataFrame(api.json())
+print(a)
+conn = mysql.connector.connect(host="localhost",user="root",password="@#aryan_3039",database="student_management")
+x = pd.read_sql_query("SELECT * FROM students",conn)
+print(x)
 df = pd.read_csv("people_1000_ml_practice.csv")
-# df.head()
-# df.info()
-# df.describe()
-# print(df)
+df.head()
+df.info()
+df.describe()
+print(df)
 # ===========extracting employed===========
-# x = df.iloc[:,:2]
-# y = df.iloc[:,3:]
-# z = df.iloc[:,2]
-# a = pd.concat([x,y],axis=1)
-# print(a)
-# print(z)
+x = df.iloc[:,:2]
+y = df.iloc[:,3:]
+z = df.iloc[:,2]
+a = pd.concat([x,y],axis=1)
+print(a)
+print(z)
 x = df.drop(["Person_ID","Employed"],axis=1)
 y = df["Employed"]
-# print(x)
-# print(y)
+print(x)
+print(y)
 
 # === training ===
 x_train,x_test,y_train,y_test= train_test_split(x,y,test_size=0.1)
-# print(y_train)
+print(y_train)
 scaler = StandardScaler()
 x_train = scaler.fit_transform(x_train)
 x_test = scaler.transform(x_test)
-# y_train = scaler.fit_transform(y_train)
-# y_test = scaler.transform(y_test)
+y_train = scaler.fit_transform(y_train)
+y_test = scaler.transform(y_test)
 
-# print(x_train)
+print(x_train)
 
 model = LogisticRegression()
 
 model.fit(x_train,y_train)
 
 prediction = model.predict(x_test)
-# print(prediction)
-# print("=====")
-# print(y_test)
+print(prediction)
+print("=====")
+print(y_test)
 accuracy = accuracy_score(y_test,prediction)
-# print("Accuracy = ",accuracy)
-# print(y.value_counts())
-# print(y.value_counts(normalize=True) * 100)
+print("Accuracy = ",accuracy)
+print(y.value_counts())
+print(y.value_counts(normalize=True) * 100)
+
+df = pd.DataFrame({
+    "Age": ["20", "25", "30"],
+    "Salary": [20000, 25000, 30000]
+})
+
+df["Age"] = df["Age"].astype(int)
+print(df.info())
+print(df.isnull().sum())
+print(df.describe())
+print(df.duplicated().sum())
+print(df.corr()["Age"])
