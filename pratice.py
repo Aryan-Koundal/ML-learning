@@ -5,8 +5,16 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score
+import mysql.connector
+import requests
 
-
+# api = requests.get("https://science.nasa.gov/wp-json/wp/v2/apod-basic/?api_key=DEMO_KEY")
+# print(api)
+# a = pd.DataFrame(api.json())
+# print(a)
+# conn = mysql.connector.connect(host="localhost",user="root",password="@#aryan_3039",database="student_management")
+# x = pd.read_sql_query("SELECT * FROM students",conn)
+# print(x)
 df = pd.read_csv("people_1000_ml_practice.csv")
 # df.head()
 # df.info()
