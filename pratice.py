@@ -8,7 +8,7 @@ from sklearn.metrics import accuracy_score
 import mysql.connector
 import requests
 import seaborn as sns
-
+from data_profiling import ProfileReport
 
 api = requests.get("https://science.nasa.gov/wp-json/wp/v2/apod-basic/?api_key=DEMO_KEY")
 print(api)
@@ -70,8 +70,8 @@ print(df.describe())
 print(df.duplicated().sum())
 print(df.corr()["Age"])
 
-# ===working with titanic dataset===
-# =====univariate analysis=====
+# # ===working with titanic dataset===
+# # =====univariate analysis=====
 df = pd.read_csv("titanic.csv")
 print(df["Survived"].value_counts())
 plt.figure()
@@ -88,7 +88,7 @@ print(df["Age"].min())
 print(df["Age"].max())
 print(df["Age"].skew())
 
-# ======================================
+# # ======================================
 titanic = pd.read_csv("titanic.csv")
 iris = pd.read_csv("iris_dataset.csv")
 passengers = pd.read_csv("air_passengers.csv")
@@ -119,3 +119,8 @@ plt.show()
 
 sns.clustermap(passengers.pivot_table(values="Passengers",index="Month",columns="Year"))
 plt.show()
+# ================================================================
+
+titanic = pd.read_csv("titanic.csv")
+y = ProfileReport(titanic,title="Titanic EDA Report")
+y.to_file("titanic_report.html")
