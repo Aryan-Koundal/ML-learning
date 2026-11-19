@@ -9,6 +9,11 @@ import mysql.connector
 import requests
 import seaborn as sns
 from data_profiling import ProfileReport
+from sklearn.metrics import confusion_matrix, classification_report
+from sklearn.preprocessing import MinMaxScaler
+
+
+
 
 api = requests.get("https://science.nasa.gov/wp-json/wp/v2/apod-basic/?api_key=DEMO_KEY")
 print(api)
@@ -124,3 +129,60 @@ plt.show()
 titanic = pd.read_csv("titanic.csv")
 y = ProfileReport(titanic,title="Titanic EDA Report")
 y.to_file("titanic_report.html")
+
+
+# ===================================feature scaling standardization ==================================
+
+
+df = pd.read_csv("customer_purchase_10000.csv")
+
+x_train,x_test,y_train,y_test = train_test_split(df.drop("Purchased",axis=1),df["Purchased"],test_size=0.2,random_state=0)
+print(x_train.shape,x_test.shape)\
+print(y_test)
+scaler = StandardScaler()
+scaler.fit(x_train)
+x_train_scaled = scaler.transform(x_train)
+x_test_scaled = scaler.transform(x_test)
+
+x_train_scaled = pd.DataFrame(x_train_scaled,columns=x_train.columns)
+x_test_scaled = pd.DataFrame(x_test_scaled,columns=x_test.columns)
+
+print(x_train_scaled.describe())
+
+sns.kdeplot(x_train_scaled["Age"])
+sns.kdeplot(x_train_scaled["EstimatedSalary"])
+plt.show()
+
+lr_scaled = LogisticRegression()
+lr_scaled.fit(x_train_scaled,y_train)
+
+y_test_prediction = lr_scaled.predict(x_test_scaled)
+print(y_test)
+print("Accuracy = ",accuracy_score(y_test,y_test_prediction))
+print(confusion_matrix(y_test,y_test_prediction))
+print(classification_report(y_test,y_test_prediction))
+
+# # ===================================feature scaling Normalization ==================================
+
+df = pd.read_csv("wine_data.csv",header=None,usecols=[0,1,2])
+df.columns = ["Class label","Alcohol","Malic acid"]
+# print(df)
+
+x_train,x_test,y_train,y_test = train_test_split(df.drop("Class label",axis=1),df["Class label"],test_size=0.1,random_state=0,stratify=df["Class label"])
+
+scaler = MinMaxScaler()
+scaler.fit(x_train)
+x_train_scaled = scaler.transform(x_train)
+x_test_scaled = scaler.transform(x_test)
+
+x_train_scaled = pd.DataFrame(x_train_scaled,columns=x_train.columns)
+x_test_scaled = pd.DataFrame(x_test_scaled,columns=x_test.columns)
+
+lr_scaled = LogisticRegression()
+lr_scaled.fit(x_train_scaled,y_train)
+
+y_test_prediction = lr_scaled.predict(x_test_scaled)
+# print(y_test)
+print("Accuracy = ",accuracy_score(y_test,y_test_prediction))
+print(confusion_matrix(y_test,y_test_prediction))
+print(classification_report(y_test,y_test_prediction))
