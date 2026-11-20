@@ -15,208 +15,275 @@ from sklearn.preprocessing import MinMaxScaler
 
 
 
-api = requests.get("https://science.nasa.gov/wp-json/wp/v2/apod-basic/?api_key=DEMO_KEY")
-print(api)
-a = pd.DataFrame(api.json())
-print(a)
-conn = mysql.connector.connect(host="localhost",user="root",password="@#aryan_3039",database="student_management")
-x = pd.read_sql_query("SELECT * FROM students",conn)
-print(x)
-df = pd.read_csv("people_1000_ml_practice.csv")
-df.head()
-df.info()
-df.describe()
-print(df)
-# ===========extracting employed===========
-x = df.iloc[:,:2]
-y = df.iloc[:,3:]
-z = df.iloc[:,2]
-a = pd.concat([x,y],axis=1)
-print(a)
-print(z)
-x = df.drop(["Person_ID","Employed"],axis=1)
-y = df["Employed"]
-print(x)
-print(y)
-
-# === training ===
-x_train,x_test,y_train,y_test= train_test_split(x,y,test_size=0.1)
-print(y_train)
-scaler = StandardScaler()
-x_train = scaler.fit_transform(x_train)
-x_test = scaler.transform(x_test)
-y_train = scaler.fit_transform(y_train)
-y_test = scaler.transform(y_test)
-
-print(x_train)
-
-model = LogisticRegression()
-
-model.fit(x_train,y_train)
-
-prediction = model.predict(x_test)
-print(prediction)
-print("=====")
-print(y_test)
-accuracy = accuracy_score(y_test,prediction)
-print("Accuracy = ",accuracy)
-print(y.value_counts())
-print(y.value_counts(normalize=True) * 100)
-
-df = pd.DataFrame({
-    "Age": ["20", "25", "30"],
-    "Salary": [20000, 25000, 30000]
-})
-
-df["Age"] = df["Age"].astype(int)
-print(df.info())
-print(df.isnull().sum())
-print(df.describe())
-print(df.duplicated().sum())
-print(df.corr()["Age"])
-
-# # ===working with titanic dataset===
-# # =====univariate analysis=====
-df = pd.read_csv("titanic.csv")
-print(df["Survived"].value_counts())
-plt.figure()
-df["Survived"].value_counts().plot(kind="pie",autopct="%.2f")# sns.countplot(df["Survived"])
-plt.show()
-plt.figure()
-y = sns.countplot(x=df["Survived"])
-plt.show()
-plt.hist(df["Age"])
-sns.displot(df["Age"])
-sns.boxplot(x=df["Fare"])
-plt.show()
-print(df["Age"].min())
-print(df["Age"].max())
-print(df["Age"].skew())
-
-# # ======================================
-titanic = pd.read_csv("titanic.csv")
-iris = pd.read_csv("iris_dataset.csv")
-passengers = pd.read_csv("air_passengers.csv")
-
-sns.scatterplot(x=passengers["Passengers"],y=passengers["Month"],hue=passengers["Year"])
-plt.show()
-sns.barplot(x=titanic["Pclass"],y=titanic["Age"],hue=titanic["Sex"])
-plt.show()
-sns.boxplot(x=titanic["Age"],y=titanic["Sex"],hue=titanic["Survived"])
-plt.show()
-sns.histplot(x=titanic[titanic["Survived"]==0]["Age"],kde=True)
-sns.histplot(x=titanic[titanic["Survived"]==1]["Age"],kde=True)
-plt.show()
-sns.heatmap(pd.crosstab(titanic["Pclass"],titanic["Survived"]))
-plt.show()
-(titanic.groupby("Pclass")["Survived"].mean()*100).plot(kind="bar")
-plt.show()
-sns.clustermap(pd.crosstab(titanic["Parch"],titanic["Survived"]))
-plt.show()
-sns.pairplot(iris)
-plt.show()
-sns.pairplot(iris,hue="species")
-plt.show()
-sns.lineplot(x=passengers["Year"],y=passengers["Passengers"])
-plt.show()
-sns.heatmap(passengers.pivot_table(values="Passengers",index="Month",columns="Year"))
-plt.show()
-
-sns.clustermap(passengers.pivot_table(values="Passengers",index="Month",columns="Year"))
-plt.show()
-# ================================================================
-
-titanic = pd.read_csv("titanic.csv")
-y = ProfileReport(titanic,title="Titanic EDA Report")
-y.to_file("titanic_report.html")
-
-
-# =================================== feature scaling standardization ==================================
-
-
-df = pd.read_csv("customer_purchase_10000.csv")
-
-x_train,x_test,y_train,y_test = train_test_split(df.drop("Purchased",axis=1),df["Purchased"],test_size=0.2,random_state=0)
-print(x_train.shape,x_test.shape)\
-print(y_test)
-scaler = StandardScaler()
-scaler.fit(x_train)
-x_train_scaled = scaler.transform(x_train)
-x_test_scaled = scaler.transform(x_test)
-
-x_train_scaled = pd.DataFrame(x_train_scaled,columns=x_train.columns)
-x_test_scaled = pd.DataFrame(x_test_scaled,columns=x_test.columns)
-
-print(x_train_scaled.describe())
-
-sns.kdeplot(x_train_scaled["Age"])
-sns.kdeplot(x_train_scaled["EstimatedSalary"])
-plt.show()
-
-lr_scaled = LogisticRegression()
-lr_scaled.fit(x_train_scaled,y_train)
-
-y_test_prediction = lr_scaled.predict(x_test_scaled)
-print(y_test)
-print("Accuracy = ",accuracy_score(y_test,y_test_prediction))
-print(confusion_matrix(y_test,y_test_prediction))
-print(classification_report(y_test,y_test_prediction))
-
-# # =================================== feature scaling Normalization ==================================
-
-df = pd.read_csv("wine_data.csv",header=None,usecols=[0,1,2])
-df.columns = ["Class label","Alcohol","Malic acid"]
+# api = requests.get("https://science.nasa.gov/wp-json/wp/v2/apod-basic/?api_key=DEMO_KEY")
+# print(api)
+# a = pd.DataFrame(api.json())
+# print(a)
+# conn = mysql.connector.connect(host="localhost",user="root",password="@#aryan_3039",database="student_management")
+# x = pd.read_sql_query("SELECT * FROM students",conn)
+# print(x)
+# df = pd.read_csv("people_1000_ml_practice.csv")
+# df.head()
+# df.info()
+# df.describe()
 # print(df)
+# # ===========extracting employed===========
+# x = df.iloc[:,:2]
+# y = df.iloc[:,3:]
+# z = df.iloc[:,2]
+# a = pd.concat([x,y],axis=1)
+# print(a)
+# print(z)
+# x = df.drop(["Person_ID","Employed"],axis=1)
+# y = df["Employed"]
+# print(x)
+# print(y)
 
-x_train,x_test,y_train,y_test = train_test_split(df.drop("Class label",axis=1),df["Class label"],test_size=0.1,random_state=0,stratify=df["Class label"])
+# # === training ===
+# x_train,x_test,y_train,y_test= train_test_split(x,y,test_size=0.1)
+# print(y_train)
+# scaler = StandardScaler()
+# x_train = scaler.fit_transform(x_train)
+# x_test = scaler.transform(x_test)
+# y_train = scaler.fit_transform(y_train)
+# y_test = scaler.transform(y_test)
 
-scaler = MinMaxScaler()
-scaler.fit(x_train)
-x_train_scaled = scaler.transform(x_train)
-x_test_scaled = scaler.transform(x_test)
-
-x_train_scaled = pd.DataFrame(x_train_scaled,columns=x_train.columns)
-x_test_scaled = pd.DataFrame(x_test_scaled,columns=x_test.columns)
-
-lr_scaled = LogisticRegression()
-lr_scaled.fit(x_train_scaled,y_train)
-
-y_test_prediction = lr_scaled.predict(x_test_scaled)
-# print(y_test)
-print("Accuracy = ",accuracy_score(y_test,y_test_prediction))
-print(confusion_matrix(y_test,y_test_prediction))
-print(classification_report(y_test,y_test_prediction))
-
-# # =================================== Encoding Categorical Data ==================================
-from sklearn.preprocessing import OrdinalEncoder
-df = pd.read_csv("customer.csv")
-df = df.iloc[:,2:]
-# print(df.head())
-# print(df.columns)
-x_train,x_test,y_train,y_test = train_test_split(df.drop("purchased",axis=1),df["purchased"],test_size=0.2,stratify=df["purchased"])
 # print(x_train)
 
-oe = OrdinalEncoder(categories=[["Poor","Average","Good"],["School","UG","PG"]])
-oe.fit(x_train)
-x_train_ = oe.transform(x_train)
-x_test_ = oe.transform(x_test)
+# model = LogisticRegression()
 
-x_train_ = pd.DataFrame(x_train_,columns=x_train.columns)
-x_test_ = pd.DataFrame(x_test_,columns=x_test.columns)
+# model.fit(x_train,y_train)
+
+# prediction = model.predict(x_test)
+# print(prediction)
+# print("=====")
+# print(y_test)
+# accuracy = accuracy_score(y_test,prediction)
+# print("Accuracy = ",accuracy)
+# print(y.value_counts())
+# print(y.value_counts(normalize=True) * 100)
+
+# df = pd.DataFrame({
+#     "Age": ["20", "25", "30"],
+#     "Salary": [20000, 25000, 30000]
+# })
+
+# df["Age"] = df["Age"].astype(int)
+# print(df.info())
+# print(df.isnull().sum())
+# print(df.describe())
+# print(df.duplicated().sum())
+# print(df.corr()["Age"])
+
+# # # ===working with titanic dataset===
+# # # =====univariate analysis=====
+# df = pd.read_csv("titanic.csv")
+# print(df["Survived"].value_counts())
+# plt.figure()
+# df["Survived"].value_counts().plot(kind="pie",autopct="%.2f")# sns.countplot(df["Survived"])
+# plt.show()
+# plt.figure()
+# y = sns.countplot(x=df["Survived"])
+# plt.show()
+# plt.hist(df["Age"])
+# sns.displot(df["Age"])
+# sns.boxplot(x=df["Fare"])
+# plt.show()
+# print(df["Age"].min())
+# print(df["Age"].max())
+# print(df["Age"].skew())
+
+# # # ======================================
+# titanic = pd.read_csv("titanic.csv")
+# iris = pd.read_csv("iris_dataset.csv")
+# passengers = pd.read_csv("air_passengers.csv")
+
+# sns.scatterplot(x=passengers["Passengers"],y=passengers["Month"],hue=passengers["Year"])
+# plt.show()
+# sns.barplot(x=titanic["Pclass"],y=titanic["Age"],hue=titanic["Sex"])
+# plt.show()
+# sns.boxplot(x=titanic["Age"],y=titanic["Sex"],hue=titanic["Survived"])
+# plt.show()
+# sns.histplot(x=titanic[titanic["Survived"]==0]["Age"],kde=True)
+# sns.histplot(x=titanic[titanic["Survived"]==1]["Age"],kde=True)
+# plt.show()
+# sns.heatmap(pd.crosstab(titanic["Pclass"],titanic["Survived"]))
+# plt.show()
+# (titanic.groupby("Pclass")["Survived"].mean()*100).plot(kind="bar")
+# plt.show()
+# sns.clustermap(pd.crosstab(titanic["Parch"],titanic["Survived"]))
+# plt.show()
+# sns.pairplot(iris)
+# plt.show()
+# sns.pairplot(iris,hue="species")
+# plt.show()
+# sns.lineplot(x=passengers["Year"],y=passengers["Passengers"])
+# plt.show()
+# sns.heatmap(passengers.pivot_table(values="Passengers",index="Month",columns="Year"))
+# plt.show()
+
+# sns.clustermap(passengers.pivot_table(values="Passengers",index="Month",columns="Year"))
+# plt.show()
+# # ================================================================
+
+# titanic = pd.read_csv("titanic.csv")
+# y = ProfileReport(titanic,title="Titanic EDA Report")
+# y.to_file("titanic_report.html")
+
+
+# # =================================== feature scaling standardization ==================================
+
+
+# df = pd.read_csv("customer_purchase_10000.csv")
+
+# x_train,x_test,y_train,y_test = train_test_split(df.drop("Purchased",axis=1),df["Purchased"],test_size=0.2,random_state=0)
+# print(x_train.shape,x_test.shape)\
+# print(y_test)
+# scaler = StandardScaler()
+# scaler.fit(x_train)
+# x_train_scaled = scaler.transform(x_train)
+# x_test_scaled = scaler.transform(x_test)
+
+# x_train_scaled = pd.DataFrame(x_train_scaled,columns=x_train.columns)
+# x_test_scaled = pd.DataFrame(x_test_scaled,columns=x_test.columns)
+
+# print(x_train_scaled.describe())
+
+# sns.kdeplot(x_train_scaled["Age"])
+# sns.kdeplot(x_train_scaled["EstimatedSalary"])
+# plt.show()
+
+# lr_scaled = LogisticRegression()
+# lr_scaled.fit(x_train_scaled,y_train)
+
+# y_test_prediction = lr_scaled.predict(x_test_scaled)
+# print(y_test)
+# print("Accuracy = ",accuracy_score(y_test,y_test_prediction))
+# print(confusion_matrix(y_test,y_test_prediction))
+# print(classification_report(y_test,y_test_prediction))
+
+# # # =================================== feature scaling Normalization ==================================
+
+# df = pd.read_csv("wine_data.csv",header=None,usecols=[0,1,2])
+# df.columns = ["Class label","Alcohol","Malic acid"]
+# # print(df)
+
+# x_train,x_test,y_train,y_test = train_test_split(df.drop("Class label",axis=1),df["Class label"],test_size=0.1,random_state=0,stratify=df["Class label"])
+
+# scaler = MinMaxScaler()
+# scaler.fit(x_train)
+# x_train_scaled = scaler.transform(x_train)
+# x_test_scaled = scaler.transform(x_test)
+
+# x_train_scaled = pd.DataFrame(x_train_scaled,columns=x_train.columns)
+# x_test_scaled = pd.DataFrame(x_test_scaled,columns=x_test.columns)
+
+# lr_scaled = LogisticRegression()
+# lr_scaled.fit(x_train_scaled,y_train)
+
+# y_test_prediction = lr_scaled.predict(x_test_scaled)
+# # print(y_test)
+# print("Accuracy = ",accuracy_score(y_test,y_test_prediction))
+# print(confusion_matrix(y_test,y_test_prediction))
+# print(classification_report(y_test,y_test_prediction))
+
+# # # =================================== Encoding Categorical Data ==================================
+# from sklearn.preprocessing import OrdinalEncoder
+# df = pd.read_csv("customer.csv")
+# df = df.iloc[:,2:]
+# print(df.head())
+# print(df.columns)
+# x_train,x_test,y_train,y_test = train_test_split(df.drop("purchased",axis=1),df["purchased"],test_size=0.2,stratify=df["purchased"])
+# print(x_train)
+
+# oe = OrdinalEncoder(categories=[["Poor","Average","Good"],["School","UG","PG"]])
+# oe.fit(x_train)
+# x_train_ = oe.transform(x_train)
+# x_test_ = oe.transform(x_test)
+
+# x_train_ = pd.DataFrame(x_train_,columns=x_train.columns)
+# x_test_ = pd.DataFrame(x_test_,columns=x_test.columns)
+
+# from sklearn.preprocessing import LabelEncoder
+
+# le = LabelEncoder()
+
+# le.fit(y_train)
+# y_train_ = le.transform(y_train)
+# y_test_ = le.transform(y_test)
+
+# lr = LogisticRegression()
+# lr.fit(x_train_,y_train_)
+
+# prediction = lr.predict(x_test_)
+
+# print("Accuracy",accuracy_score(y_test_,prediction))
+# print(confusion_matrix(y_test_,prediction))
+# print(classification_report(y_test_,prediction))
+
+# # =================================== without Column Transformer ==================================
+from sklearn.impute import SimpleImputer
+from sklearn.preprocessing import OneHotEncoder
+from sklearn.preprocessing import OrdinalEncoder
+
+df = pd.read_csv("covid_toy.csv")
+# print(df.isnull().sum())
+
+x_train,x_test,y_train,y_test = train_test_split(df.drop("has_covid",axis=1),df["has_covid"],test_size=0.1,random_state=0,stratify=df["has_covid"])
+# print(x_train.head())
+
+si = SimpleImputer()
+
+x_fever_train = si.fit_transform(x_train[["fever"]])
+x_fever_test = si.transform(x_test[["fever"]])
+# print(x_fever_train.shape)
+
+oe = OrdinalEncoder(categories=[["Mild","Strong"]])
+
+x_cough_train = oe.fit_transform(x_train[["cough"]])
+x_cough_test = oe.transform(x_test[["cough"]])
+
+ohe = OneHotEncoder(drop="first",sparse_output=False)
+
+x_gender_city_train = ohe.fit_transform(x_train[["gender","city"]])
+x_gender_city_test = ohe.transform(x_test[["gender","city"]])
+
+x_age_train = x_train[["age"]]
+x_age_test = x_test[["age"]]
+
+x_train_transformed = np.concatenate((x_age_train,x_gender_city_train,x_fever_train,x_cough_train),axis=1)
+x_test_transformed = np.concatenate((x_age_test,x_gender_city_test,x_fever_test,x_cough_test),axis=1)
+
+x_train_df = pd.DataFrame(x_train_transformed)
+# print(x_train_df)
+
+# # =================================== without Column Transformer ==================================
+from sklearn.compose import ColumnTransformer
+
+transformer = ColumnTransformer(transformers=[
+    ("tf1",SimpleImputer(),["fever"]),
+    ("tf2",OrdinalEncoder(categories=[["Mild","Strong"]]),["cough"]),
+    ("tf3",OneHotEncoder(drop="first",sparse_output=False),["gender","city"])
+    ],remainder="passthrough")
+
+x_train_transformed_ = transformer.fit_transform(x_train)
+x_test_transformed_ = transformer.transform(x_test)
 
 from sklearn.preprocessing import LabelEncoder
 
 le = LabelEncoder()
 
-le.fit(y_train)
-y_train_ = le.transform(y_train)
+y_train_ = le.fit_transform(y_train)
 y_test_ = le.transform(y_test)
 
+
 lr = LogisticRegression()
-lr.fit(x_train_,y_train_)
+lr.fit(x_train_transformed_,y_train_)
 
-prediction = lr.predict(x_test_)
+prediction = lr.predict(x_test_transformed_)
 
-print("Accuracy",accuracy_score(y_test_,prediction))
-print(confusion_matrix(y_test_,prediction))
-print(classification_report(y_test_,prediction))
+# print("Accuracy",accuracy_score(y_test_,prediction))
+# print(confusion_matrix(y_test_,prediction))
+# print(classification_report(y_test_,prediction))
+print(y_train.value_counts())
+print(y_test.value_counts())
