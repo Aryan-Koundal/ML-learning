@@ -131,7 +131,7 @@ y = ProfileReport(titanic,title="Titanic EDA Report")
 y.to_file("titanic_report.html")
 
 
-# ===================================feature scaling standardization ==================================
+# =================================== feature scaling standardization ==================================
 
 
 df = pd.read_csv("customer_purchase_10000.csv")
@@ -162,7 +162,7 @@ print("Accuracy = ",accuracy_score(y_test,y_test_prediction))
 print(confusion_matrix(y_test,y_test_prediction))
 print(classification_report(y_test,y_test_prediction))
 
-# # ===================================feature scaling Normalization ==================================
+# # =================================== feature scaling Normalization ==================================
 
 df = pd.read_csv("wine_data.csv",header=None,usecols=[0,1,2])
 df.columns = ["Class label","Alcohol","Malic acid"]
@@ -186,3 +186,37 @@ y_test_prediction = lr_scaled.predict(x_test_scaled)
 print("Accuracy = ",accuracy_score(y_test,y_test_prediction))
 print(confusion_matrix(y_test,y_test_prediction))
 print(classification_report(y_test,y_test_prediction))
+
+# # =================================== Encoding Categorical Data ==================================
+from sklearn.preprocessing import OrdinalEncoder
+df = pd.read_csv("customer.csv")
+df = df.iloc[:,2:]
+# print(df.head())
+# print(df.columns)
+x_train,x_test,y_train,y_test = train_test_split(df.drop("purchased",axis=1),df["purchased"],test_size=0.2,stratify=df["purchased"])
+# print(x_train)
+
+oe = OrdinalEncoder(categories=[["Poor","Average","Good"],["School","UG","PG"]])
+oe.fit(x_train)
+x_train_ = oe.transform(x_train)
+x_test_ = oe.transform(x_test)
+
+x_train_ = pd.DataFrame(x_train_,columns=x_train.columns)
+x_test_ = pd.DataFrame(x_test_,columns=x_test.columns)
+
+from sklearn.preprocessing import LabelEncoder
+
+le = LabelEncoder()
+
+le.fit(y_train)
+y_train_ = le.transform(y_train)
+y_test_ = le.transform(y_test)
+
+lr = LogisticRegression()
+lr.fit(x_train_,y_train_)
+
+prediction = lr.predict(x_test_)
+
+print("Accuracy",accuracy_score(y_test_,prediction))
+print(confusion_matrix(y_test_,prediction))
+print(classification_report(y_test_,prediction))
