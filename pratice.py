@@ -334,3 +334,60 @@ dtc.fit(x_train_transformed,y_train)
 prediction = dtc.predict(x_test_transformed)
 
 print("Accuracy = ",accuracy_score(y_test,prediction))
+
+# =================================== with using Pipelines ==================================
+
+from sklearn.compose import ColumnTransformer
+from sklearn.impute import SimpleImputer
+from sklearn.preprocessing import OneHotEncoder
+from sklearn.preprocessing import OrdinalEncoder
+from sklearn.pipeline import Pipeline,make_pipeline
+from sklearn.feature_selection import SelectKBest,chi2
+from sklearn.tree import DecisionTreeClassifier
+
+df = pd.read_csv("titanic.csv")
+
+df.drop(columns=["PassengerId","Name","Cabin","Ticket"],inplace=True)
+x_train,x_test,y_train,y_test = train_test_split(df.drop("Survived",axis=1),df["Survived"],test_size=0.1,random_state=0,stratify=df["Survived"])
+
+trf1 = ColumnTransformer([
+    ("age_impute",SimpleImputer(),[2]),
+    ("embraced_impute",SimpleImputer(strategy="most_frequent"),[6])
+    ],remainder="passthrough")
+
+trf2 = ColumnTransformer([
+    ("impute_age_ebraced",OneHotEncoder(sparse_output=False,handle_unknown="ignore"),[1,6])
+    ],remainder="passthrough")
+
+trf3 = ColumnTransformer([
+    ("scale",MinMaxScaler(),slice(0,10))
+    ])
+
+trf4 = SelectKBest(score_func=chi2,k=8)
+
+trf5 = DecisionTreeClassifier()
+
+# pipe = Pipeline([
+#     ("trf1",trf1),
+#     ("trf2",trf2),
+#     ("trf3",trf3),
+#     ("trf4",trf4),
+#     ("trf5",trf5)
+# ])
+
+pipe = make_pipeline(trf1,trf2,trf3,trf4,trf5)
+
+pipe.fit(x_train,y_train)
+
+from sklearn import set_config
+set_config(display="diagram")
+
+prediction = pipe.predict(x_test)
+
+print("Accuracy = ",accuracy_score(y_test,prediction))
+
+from sklearn.model_selection import cross_val_score
+
+x = cross_val_score(pipe,x_train,y_train,cv=5,scoring="accuracy").mean()
+
+print("Accuracy = ",x)
