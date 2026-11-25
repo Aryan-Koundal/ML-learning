@@ -16,7 +16,10 @@ from sklearn.preprocessing import PowerTransformer
 from sklearn.model_selection import cross_val_score
 from sklearn.metrics import r2_score
 from scipy.stats import stats 
-
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.preprocessing import KBinsDiscretizer
+from sklearn.compose import ColumnTransformer
+from sklearn.preprocessing import Binarizer
 
 
 api = requests.get("https://science.nasa.gov/wp-json/wp/v2/apod-basic/?api_key=DEMO_KEY")
@@ -339,6 +342,65 @@ prediction = dtc.predict(x_test_transformed)
 
 print("Accuracy = ",accuracy_score(y_test,prediction))
 
+
+=================================== with using Pipelines ==================================
+
+from sklearn.compose import ColumnTransformer
+from sklearn.impute import SimpleImputer
+from sklearn.preprocessing import OneHotEncoder
+from sklearn.preprocessing import OrdinalEncoder
+from sklearn.pipeline import Pipeline,make_pipeline
+from sklearn.feature_selection import SelectKBest,chi2
+from sklearn.tree import DecisionTreeClassifier
+
+df = pd.read_csv("titanic.csv")
+
+df.drop(columns=["PassengerId","Name","Cabin","Ticket"],inplace=True)
+x_train,x_test,y_train,y_test = train_test_split(df.drop("Survived",axis=1),df["Survived"],test_size=0.1,random_state=0,stratify=df["Survived"])
+
+trf1 = ColumnTransformer([
+    ("age_impute",SimpleImputer(),[2]),
+    ("embraced_impute",SimpleImputer(strategy="most_frequent"),[6])
+    ],remainder="passthrough")
+
+trf2 = ColumnTransformer([
+    ("impute_age_ebraced",OneHotEncoder(sparse_output=False,handle_unknown="ignore"),[1,6])
+    ],remainder="passthrough")
+
+trf3 = ColumnTransformer([
+    ("scale",MinMaxScaler(),slice(0,10))
+    ])
+
+trf4 = SelectKBest(score_func=chi2,k=8)
+
+trf5 = DecisionTreeClassifier()
+
+# pipe = Pipeline([
+#     ("trf1",trf1),
+#     ("trf2",trf2),
+#     ("trf3",trf3),
+#     ("trf4",trf4),
+#     ("trf5",trf5)
+# ])
+
+pipe = make_pipeline(trf1,trf2,trf3,trf4,trf5)
+
+pipe.fit(x_train,y_train)
+
+from sklearn import set_config
+set_config(display="diagram")
+
+prediction = pipe.predict(x_test)
+
+print("Accuracy = ",accuracy_score(y_test,prediction))
+
+from sklearn.model_selection import cross_val_score
+
+x = cross_val_score(pipe,x_train,y_train,cv=5,scoring="accuracy").mean()
+
+print("Accuracy = ",x)
+
+
 # # =================================== Box - Cox Transform ==================================
 
 df = pd.read_csv("concrete_data.csv")
@@ -388,3 +450,67 @@ lr.fit(x_train_transformed,y_train)
 prediction = lr.predict(x_test_transformed)
 print(r2_score(y_test,prediction))
 print(np.mean(cross_val_score(lr,x_test_transformed,y_test,scoring="r2")))
+
+
+# # =================================== Discretization ==================================
+
+df = pd.read_csv("titanic.csv",usecols=["Age","Fare","Survived"])
+df.dropna(inplace=True)
+x_train,x_test,y_train,y_test = train_test_split(df.drop("Survived",axis=1),df["Survived"],test_size=0.1,random_state=0)
+
+
+# without Discretization
+
+# dtc = DecisionTreeClassifier()
+# dtc.fit(x_train,y_train)
+# prediction = dtc.predict(x_test)
+# print("Accuracy = ",accuracy_score(y_test,prediction))
+# print(np.mean(cross_val_score(dtc,x_test,y_test,scoring="accuracy",cv=10)))
+
+# with Discretization
+
+kbins_age = KBinsDiscretizer(n_bins=10,encode="ordinal",strategy="quantile")
+kbins_fare = KBinsDiscretizer(n_bins=10,encode="ordinal",strategy="quantile")
+
+trf = ColumnTransformer([
+    ("first",kbins_age,["Age"]),
+    ("second",kbins_fare,["Fare"])
+    ])
+
+x_train_transformed = trf.fit_transform(x_train)
+x_test_transformed = trf.transform(x_test)
+
+dtc = DecisionTreeClassifier()
+
+dtc.fit(x_train_transformed,y_train)
+prediction = dtc.predict(x_test_transformed)
+print("Accuracy = ",accuracy_score(y_test,prediction))
+print(np.mean(cross_val_score(dtc,x_test_transformed,y_test,scoring="accuracy",cv=10)))
+
+
+# # =================================== Binarization ==================================
+
+df = pd.read_csv("titanic.csv",usecols=["Age","Survived"])
+df.dropna(inplace=True)
+
+x_train,x_test,y_train,y_test = train_test_split(df.drop("Survived",axis=1),df["Survived"],test_size=0.1,random_state=0)
+
+# without Binarization
+
+# dtc = DecisionTreeClassifier()
+# dtc.fit(x_train,y_train)
+# prediction = dtc.predict(x_test)
+# print("Accuracy = ",accuracy_score(y_test,prediction))
+# print(np.mean(cross_val_score(dtc,x_test,y_test,scoring="accuracy",cv=10)))
+
+# with Binarization
+
+bin = Binarizer(threshold=18)
+x_train_transformed = bin.fit_transform(x_train)
+x_test_transformed = bin.transform(x_test)
+
+dtc = DecisionTreeClassifier()
+dtc.fit(x_train_transformed,y_train)
+prediction = dtc.predict(x_test_transformed)
+print("Accuracy = ",accuracy_score(y_test,prediction))
+print(np.mean(cross_val_score(dtc,x_test_transformed,y_test,scoring="accuracy",cv=10)))
