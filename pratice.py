@@ -575,3 +575,40 @@ print(df.sample(5))
 print((today - df['date'])/np.timedelta64(1,'s'))
 print((today - df['date'])/np.timedelta64(1,'m'))
 print((today - df['date'])/np.timedelta64(1,'h'))
+
+# # =================================== Handling Missing Data ==================================
+
+df = pd.read_csv("data_science_job.csv")
+
+# print(df.isnull().mean()*100)
+
+cols = [var for var in df.columns if df[var].isnull().mean() < 0.05 and df[var].isnull().mean() > 0]
+# print(cols)
+new_df = df[cols].dropna()
+
+temp = pd.concat([
+            # percentage of observations per category, original data
+            df['enrolled_university'].value_counts() / len(df),
+
+            # percentage of observations per category, cca data
+            new_df['enrolled_university'].value_counts() / len(new_df)
+        ],
+        axis=1)
+
+# add column names
+temp.columns = ['original', 'cca']
+
+print(temp)
+
+temp = pd.concat([
+            # percentage of observations per category, original data
+            df['education_level'].value_counts() / len(df),
+
+            # percentage of observations per category, cca data
+            new_df['education_level'].value_counts() / len(new_df)
+        ],
+        axis=1)
+
+# add column names
+temp.columns = ['original', 'cca']
+print(temp)
