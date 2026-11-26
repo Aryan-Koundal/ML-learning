@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split,GridSearchCV
 from sklearn.preprocessing import StandardScaler
 from sklearn.linear_model import LogisticRegression
 from sklearn.linear_model import LinearRegression
@@ -21,7 +21,7 @@ from sklearn.preprocessing import KBinsDiscretizer
 from sklearn.compose import ColumnTransformer
 from sklearn.preprocessing import Binarizer
 from sklearn.impute import SimpleImputer
-
+from sklearn.pipeline import Pipeline
 
 
 api = requests.get("https://science.nasa.gov/wp-json/wp/v2/apod-basic/?api_key=DEMO_KEY")
@@ -661,3 +661,97 @@ si = SimpleImputer(strategy="most_frequent")
 # si = SimpleImputer(strategy="constant",fill_value="missing")
 x_train = si.set_fit_request(x_train)
 x_test = si.transform(x_test)
+
+# # =================================== Handling Missing Data Random Sample Imputation ==================================
+
+df = pd.read_csv("titanic.csv",usecols=["Age","Fare","Survived"])
+
+x_train,x_test,y_train,y_test = train_test_split(df.drop("Survived",axis=1),df["Survived"],test_size=0.1,random_state=0)
+
+x_train["Age_imputed"] = x_train["Age"]
+x_test["Age_imputed"] = x_test["Age"]
+
+x_train["Age_imputed"][x_train["Age_imputed"].isnull()] = x_train["Age"].dropna().sample(x_train["Age"].isnull().sum(),replace=True).values
+x_test["Age_imputed"][x_test["Age_imputed"].isnull()] = x_test["Age"].dropna().sample(x_test["Age"].isnull().sum(),replace=True).values
+print(x_train.head())
+
+# missing = x_train["Age_imputed"].isnull()
+
+# random_values = x_train["Age_imputed"].dropna().sample(
+#     missing.sum(),
+#     replace=True,
+#     random_state=42
+# ).values
+
+# x_train.loc[missing, "Age_imputed"] = random_values
+
+
+# # =================================== Handling Missing Data Missing Indicator ==================================
+from sklearn.impute import MissingIndicator
+
+df = pd.read_csv("titanic.csv",usecols=["Age","Fare","Survived"])
+
+x_train,x_test,y_train,y_test = train_test_split(df.drop("Survived",axis=1),df["Survived"],test_size=0.1,random_state=0)
+
+mi = MissingIndicator()
+
+x_train_missing = mi.fit_transform(x_train)
+x_test_missing = mi.transform(x_test)
+
+x_train["Age_missing"] = x_train_missing
+x_test["Age_missing"] = x_test_missing
+
+si = SimpleImputer()
+
+x_train_trf2 = si.fit_transform(x_train)
+x_test_trf2 = si.transform(x_test)
+
+lr = LogisticRegression()
+lr.fit(x_train_trf2,y_train)
+prediction = lr.predict(x_test_trf2)
+print("Accuracy = ",accuracy_score(y_test,prediction))
+
+
+# # =================================== Handling Missing Data automatically-select-imputer ==================================
+from sklearn.preprocessing import OneHotEncoder
+df = pd.read_csv("titanic.csv")
+df.drop(columns=['PassengerId','Name','Ticket','Cabin'],inplace=True)
+
+x_train,x_test,y_train,y_test = train_test_split(df.drop("Survived",axis=1),df["Survived"],test_size=0.1,random_state=0)
+
+num_features = ["Age","Fare"]
+num_transformer = Pipeline([
+    ("imputer",SimpleImputer(strategy="median")),
+    ("scaler",StandardScaler())
+])
+
+cat_features = ["Sex","Embarked"]
+cat_transformer = Pipeline([
+    ("imputer",SimpleImputer(strategy="most_frequent")),
+    ("onehotencoder",OneHotEncoder(handle_unknown="ignore"))
+])
+
+preprocessor = ColumnTransformer(transformers=[
+    ("num",num_transformer,num_features),
+    ("cat",cat_transformer,cat_features)
+])
+
+clf = Pipeline([
+    ("preprocessor",preprocessor),
+    ("classifier",LogisticRegression())
+])
+
+param_grid = {
+    'preprocessor__num__imputer__strategy': ['mean', 'median'],
+    'preprocessor__cat__imputer__strategy': ['most_frequent', 'constant'],
+    'classifier__C': [0.1, 1.0, 10, 100]
+}
+
+grid_search = GridSearchCV(clf, param_grid, cv=10)
+grid_search.fit(x_train, y_train)
+
+print(f"Best params:")
+print(grid_search.best_params_)
+cv_results = pd.DataFrame(grid_search.cv_results_)
+cv_results = cv_results.sort_values("mean_test_score", ascending=False)
+print(cv_results[['param_classifier__C','param_preprocessor__cat__imputer__strategy','param_preprocessor__num__imputer__strategy','mean_test_score']])
