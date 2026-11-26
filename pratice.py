@@ -22,6 +22,8 @@ from sklearn.compose import ColumnTransformer
 from sklearn.preprocessing import Binarizer
 from sklearn.impute import SimpleImputer
 
+
+
 api = requests.get("https://science.nasa.gov/wp-json/wp/v2/apod-basic/?api_key=DEMO_KEY")
 print(api)
 a = pd.DataFrame(api.json())
@@ -649,3 +651,13 @@ trf.transform(x_test)
 # x_age_train = si.fit_transform(x_train[["Age"]])
 # x_age_test = si.transform(x_test[["Age"]])
 # print(trf.named_transformers_["trf1"].statistics_)
+
+# # =================================== Handling Missing Categorical Data ==================================
+
+df = pd.read_csv('train.csv',usecols=['GarageQual','FireplaceQu','SalePrice'])
+# df['GarageQual'].fillna("missing",inplace=True)
+x_train,x_test,y_train,y_test = train_test_split(df.drop("SalePrice",axis=1),df["SalePrice"],test_size=0.1,random_state=0)
+si = SimpleImputer(strategy="most_frequent")
+# si = SimpleImputer(strategy="constant",fill_value="missing")
+x_train = si.set_fit_request(x_train)
+x_test = si.transform(x_test)
