@@ -20,7 +20,7 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.preprocessing import KBinsDiscretizer
 from sklearn.compose import ColumnTransformer
 from sklearn.preprocessing import Binarizer
-
+from sklearn.impute import SimpleImputer
 
 api = requests.get("https://science.nasa.gov/wp-json/wp/v2/apod-basic/?api_key=DEMO_KEY")
 print(api)
@@ -612,3 +612,40 @@ temp = pd.concat([
 # add column names
 temp.columns = ['original', 'cca']
 print(temp)
+
+# # =================================== Handling Missing Data with Simple Imputer ==================================
+
+df = pd.read_csv("titanic.csv",usecols=["Age","Fare","SibSp","Parch","Survived"])
+df["Family"] = df["SibSp"] + df["Parch"]
+df.drop(["SibSp","Parch"],axis=1,inplace=True)
+# print(df.head())
+# print(df.info())
+
+x_train,x_test,y_train,y_test = train_test_split(df.drop("Survived",axis=1),df["Survived"],test_size=0.1,random_state=0)
+
+# age_mean = df["Age"].mean()
+# age_meadian = df["Age"].median()
+# fare_mean = df["Fare"].mean()
+# fare_meadian = df["Fare"].median()
+
+# df["Age_mean"] = df["Age"].fillna(age_mean)
+# df["Age_median"] = df["Age"].fillna(age_meadian)
+# df["Fare_mean"] = df["Fare"].fillna(fare_mean)
+# df["Fare_median"] = df["Fare"].fillna(fare_meadian)
+
+# df["Age_minus"] = df["Age"].fillna(-1)
+
+# print(df.head())
+# print(df.info())
+
+si = SimpleImputer(strategy="mean")
+# si = SimpleImputer(strategy="constant",fill_value=-1)
+
+trf = ColumnTransformer([
+    ("trf1",si,["Age"])
+],remainder="passthrough")
+trf.fit_transform(x_train)
+trf.transform(x_test)
+# x_age_train = si.fit_transform(x_train[["Age"]])
+# x_age_test = si.transform(x_test[["Age"]])
+# print(trf.named_transformers_["trf1"].statistics_)
