@@ -22,7 +22,7 @@ from sklearn.compose import ColumnTransformer
 from sklearn.preprocessing import Binarizer
 from sklearn.impute import SimpleImputer
 from sklearn.pipeline import Pipeline
-
+from sklearn.impute import KNNImputer
 
 api = requests.get("https://science.nasa.gov/wp-json/wp/v2/apod-basic/?api_key=DEMO_KEY")
 print(api)
@@ -755,3 +755,23 @@ print(grid_search.best_params_)
 cv_results = pd.DataFrame(grid_search.cv_results_)
 cv_results = cv_results.sort_values("mean_test_score", ascending=False)
 print(cv_results[['param_classifier__C','param_preprocessor__cat__imputer__strategy','param_preprocessor__num__imputer__strategy','mean_test_score']])
+
+
+# # =================================== Handling Missing Data KNN Imputer ==================================
+
+df = pd.read_csv("titanic.csv",usecols=["Age","Pclass","Fare","Survived"])
+
+x_train,x_test,y_train,y_test = train_test_split(df.drop("Survived",axis=1),df["Survived"],test_size=0.1,random_state=0)
+
+knn = KNNImputer()
+# knn = KNNImputer(n_neighbors=3,weights='distance')
+x_train_trf = knn.fit_transform(x_train)
+x_test_trf = knn.transform(x_test)
+
+lr = LogisticRegression()
+
+lr.fit(x_train_trf,y_train)
+
+y_pred = lr.predict(x_test_trf)
+
+print("Accuracy = ",accuracy_score(y_test,y_pred))
