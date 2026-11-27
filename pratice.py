@@ -31,7 +31,7 @@ print(a)
 conn = mysql.connector.connect(host="localhost",user="root",password="@#aryan_3039",database="student_management")
 x = pd.read_sql_query("SELECT * FROM students",conn)
 print(x)
-df = pd.read_csv("people_1000_ml_practice.csv")
+df = pd.read_csv("csv_files/people_1000_ml_practice.csv")
 df.head()
 df.info()
 df.describe()
@@ -86,7 +86,7 @@ print(df.corr()["Age"])
 
 # # ===working with titanic dataset===
 # # =====univariate analysis=====
-df = pd.read_csv("titanic.csv")
+df = pd.read_csv("csv_files/titanic.csv")
 print(df["Survived"].value_counts())
 plt.figure()
 df["Survived"].value_counts().plot(kind="pie",autopct="%.2f")# sns.countplot(df["Survived"])
@@ -103,9 +103,9 @@ print(df["Age"].max())
 print(df["Age"].skew())
 
 # # ======================================
-titanic = pd.read_csv("titanic.csv")
-iris = pd.read_csv("iris_dataset.csv")
-passengers = pd.read_csv("air_passengers.csv")
+titanic = pd.read_csv("csv_files/titanic.csv")
+iris = pd.read_csv("csv_files/iris_dataset.csv")
+passengers = pd.read_csv("csv_files/air_passengers.csv")
 
 sns.scatterplot(x=passengers["Passengers"],y=passengers["Month"],hue=passengers["Year"])
 plt.show()
@@ -135,7 +135,7 @@ sns.clustermap(passengers.pivot_table(values="Passengers",index="Month",columns=
 plt.show()
 # ================================================================
 
-titanic = pd.read_csv("titanic.csv")
+titanic = pd.read_csv("csv_files/titanic.csv")
 y = ProfileReport(titanic,title="Titanic EDA Report")
 y.to_file("titanic_report.html")
 
@@ -143,7 +143,7 @@ y.to_file("titanic_report.html")
 # =================================== feature scaling standardization ==================================
 
 
-df = pd.read_csv("customer_purchase_10000.csv")
+df = pd.read_csv("csv_files/customer_purchase_10000.csv")
 
 x_train,x_test,y_train,y_test = train_test_split(df.drop("Purchased",axis=1),df["Purchased"],test_size=0.2,random_state=0)
 print(x_train.shape,x_test.shape)\
@@ -173,7 +173,7 @@ print(classification_report(y_test,y_test_prediction))
 
 # # =================================== feature scaling Normalization ==================================
 
-df = pd.read_csv("wine_data.csv",header=None,usecols=[0,1,2])
+df = pd.read_csv("csv_files/wine_data.csv",header=None,usecols=[0,1,2])
 df.columns = ["Class label","Alcohol","Malic acid"]
 # print(df)
 
@@ -198,7 +198,7 @@ print(classification_report(y_test,y_test_prediction))
 
 # # =================================== Encoding Categorical Data ==================================
 from sklearn.preprocessing import OrdinalEncoder
-df = pd.read_csv("customer.csv")
+df = pd.read_csv("csv_files/customer.csv")
 df = df.iloc[:,2:]
 print(df.head())
 print(df.columns)
@@ -235,7 +235,7 @@ from sklearn.impute import SimpleImputer
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.preprocessing import OrdinalEncoder
 
-df = pd.read_csv("covid_toy.csv")
+df = pd.read_csv("csv_files/covid_toy.csv")
 # print(df.isnull().sum())
 
 x_train,x_test,y_train,y_test = train_test_split(df.drop("has_covid",axis=1),df["has_covid"],test_size=0.1,random_state=0,stratify=df["has_covid"])
@@ -298,7 +298,7 @@ print(y_test.value_counts())
 
 # # =================================== without using Pipelines ==================================
 
-df = pd.read_csv("titanic.csv")
+df = pd.read_csv("csv_files/titanic.csv")
 
 df.drop(columns=["PassengerId","Name","Cabin","Ticket"],inplace=True)
 
@@ -345,7 +345,7 @@ prediction = dtc.predict(x_test_transformed)
 print("Accuracy = ",accuracy_score(y_test,prediction))
 
 
-=================================== with using Pipelines ==================================
+# # =================================== with using Pipelines ==================================
 
 from sklearn.compose import ColumnTransformer
 from sklearn.impute import SimpleImputer
@@ -355,7 +355,7 @@ from sklearn.pipeline import Pipeline,make_pipeline
 from sklearn.feature_selection import SelectKBest,chi2
 from sklearn.tree import DecisionTreeClassifier
 
-df = pd.read_csv("titanic.csv")
+df = pd.read_csv("csv_files/titanic.csv")
 
 df.drop(columns=["PassengerId","Name","Cabin","Ticket"],inplace=True)
 x_train,x_test,y_train,y_test = train_test_split(df.drop("Survived",axis=1),df["Survived"],test_size=0.1,random_state=0,stratify=df["Survived"])
@@ -405,7 +405,7 @@ print("Accuracy = ",x)
 
 # # =================================== Box - Cox Transform ==================================
 
-df = pd.read_csv("concrete_data.csv")
+df = pd.read_csv("csv_files/concrete_data.csv")
 
 # print(df.head())
 x_train,x_test,y_train,y_test = train_test_split(df.drop("Strength",axis=1),df["Strength"],test_size=0.1,random_state=0)
@@ -430,7 +430,7 @@ print(np.mean(cross_val_score(lr,x_test_transformed,y_test,scoring="r2")))
 
 # # =================================== Yeo - Johnson Transform ==================================
 
-df = pd.read_csv("concrete_data.csv")
+df = pd.read_csv("csv_files/concrete_data.csv")
 
 # print(df.head())
 x_train,x_test,y_train,y_test = train_test_split(df.drop("Strength",axis=1),df["Strength"],test_size=0.1,random_state=0)
@@ -456,7 +456,7 @@ print(np.mean(cross_val_score(lr,x_test_transformed,y_test,scoring="r2")))
 
 # # =================================== Discretization ==================================
 
-df = pd.read_csv("titanic.csv",usecols=["Age","Fare","Survived"])
+df = pd.read_csv("csv_files/titanic.csv",usecols=["Age","Fare","Survived"])
 df.dropna(inplace=True)
 x_train,x_test,y_train,y_test = train_test_split(df.drop("Survived",axis=1),df["Survived"],test_size=0.1,random_state=0)
 
@@ -492,7 +492,7 @@ print(np.mean(cross_val_score(dtc,x_test_transformed,y_test,scoring="accuracy",c
 
 # # =================================== Binarization ==================================
 
-df = pd.read_csv("titanic.csv",usecols=["Age","Survived"])
+df = pd.read_csv("csv_files/titanic.csv",usecols=["Age","Survived"])
 df.dropna(inplace=True)
 
 x_train,x_test,y_train,y_test = train_test_split(df.drop("Survived",axis=1),df["Survived"],test_size=0.1,random_state=0)
@@ -519,7 +519,7 @@ print(np.mean(cross_val_score(dtc,x_test_transformed,y_test,scoring="accuracy",c
 
 # # =================================== Handling Mixed Variables ==================================
 
-df = pd.read_csv("mixed_variables.csv")
+df = pd.read_csv("csv_files/mixed_variables.csv")
 # print(df.head())
 
 df['number_numerical'] = pd.to_numeric(df["number"],errors='coerce',downcast='integer')
@@ -546,7 +546,7 @@ print(df.head(20))
 
 # # =================================== Handling Date and Time Variables ==================================
 
-df = pd.read_csv("messages.csv")
+df = pd.read_csv("csv_files/messages.csv")
 print(df.head())
 df["date"] = pd.to_datetime(df["date"])
 print(df.info())
@@ -580,7 +580,7 @@ print((today - df['date'])/np.timedelta64(1,'h'))
 
 # # =================================== Handling Missing Data ==================================
 
-df = pd.read_csv("data_science_job.csv")
+df = pd.read_csv("csv_files/data_science_job.csv")
 
 # print(df.isnull().mean()*100)
 
@@ -617,7 +617,7 @@ print(temp)
 
 # # =================================== Handling Missing Data with Simple Imputer ==================================
 
-df = pd.read_csv("titanic.csv",usecols=["Age","Fare","SibSp","Parch","Survived"])
+df = pd.read_csv("csv_files/titanic.csv",usecols=["Age","Fare","SibSp","Parch","Survived"])
 df["Family"] = df["SibSp"] + df["Parch"]
 df.drop(["SibSp","Parch"],axis=1,inplace=True)
 # print(df.head())
@@ -654,7 +654,7 @@ trf.transform(x_test)
 
 # # =================================== Handling Missing Categorical Data ==================================
 
-df = pd.read_csv('train.csv',usecols=['GarageQual','FireplaceQu','SalePrice'])
+df = pd.read_csv('csv_files/train.csv',usecols=['GarageQual','FireplaceQu','SalePrice'])
 # df['GarageQual'].fillna("missing",inplace=True)
 x_train,x_test,y_train,y_test = train_test_split(df.drop("SalePrice",axis=1),df["SalePrice"],test_size=0.1,random_state=0)
 si = SimpleImputer(strategy="most_frequent")
@@ -664,7 +664,7 @@ x_test = si.transform(x_test)
 
 # # =================================== Handling Missing Data Random Sample Imputation ==================================
 
-df = pd.read_csv("titanic.csv",usecols=["Age","Fare","Survived"])
+df = pd.read_csv("csv_files/titanic.csv",usecols=["Age","Fare","Survived"])
 
 x_train,x_test,y_train,y_test = train_test_split(df.drop("Survived",axis=1),df["Survived"],test_size=0.1,random_state=0)
 
@@ -689,7 +689,7 @@ print(x_train.head())
 # # =================================== Handling Missing Data Missing Indicator ==================================
 from sklearn.impute import MissingIndicator
 
-df = pd.read_csv("titanic.csv",usecols=["Age","Fare","Survived"])
+df = pd.read_csv("csv_files/titanic.csv",usecols=["Age","Fare","Survived"])
 
 x_train,x_test,y_train,y_test = train_test_split(df.drop("Survived",axis=1),df["Survived"],test_size=0.1,random_state=0)
 
@@ -714,7 +714,7 @@ print("Accuracy = ",accuracy_score(y_test,prediction))
 
 # # =================================== Handling Missing Data automatically-select-imputer ==================================
 from sklearn.preprocessing import OneHotEncoder
-df = pd.read_csv("titanic.csv")
+df = pd.read_csv("csv_files/titanic.csv")
 df.drop(columns=['PassengerId','Name','Ticket','Cabin'],inplace=True)
 
 x_train,x_test,y_train,y_test = train_test_split(df.drop("Survived",axis=1),df["Survived"],test_size=0.1,random_state=0)
@@ -759,7 +759,7 @@ print(cv_results[['param_classifier__C','param_preprocessor__cat__imputer__strat
 
 # # =================================== Handling Missing Data KNN Imputer ==================================
 
-df = pd.read_csv("titanic.csv",usecols=["Age","Pclass","Fare","Survived"])
+df = pd.read_csv("csv_files/titanic.csv",usecols=["Age","Pclass","Fare","Survived"])
 
 x_train,x_test,y_train,y_test = train_test_split(df.drop("Survived",axis=1),df["Survived"],test_size=0.1,random_state=0)
 
